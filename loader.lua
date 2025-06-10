@@ -10,3 +10,5 @@ import("Functions/fly.lua")
 
 -- Загружаем GUI
 import("Gui/fly_gui.lua")
+
+import("Functions/esp.lua")()
