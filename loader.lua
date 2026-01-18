@@ -12,3 +12,5 @@ import("Functions/fly.lua")
 import("Gui/fly_gui.lua")
 
 import("Functions/esp.lua")()
+
+import("Functions/tp.lua")()
