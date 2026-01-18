@@ -1,63 +1,50 @@
-return function()
-    local Players = game:GetService("Players")
-    local RunService = game:GetService("RunService")
+-- Простой ESP для команд
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-    local localPlayer = Players.LocalPlayer
-    local camera = workspace.CurrentCamera
-
-    local adornments = {}
-
-    local function createESP(player)
-        if player == localPlayer then return end
-        local character = player.Character
-        if not character then return end
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-
-        local box = Instance.new("BoxHandleAdornment")
-        box.Adornee = hrp
-        box.AlwaysOnTop = true
-        box.ZIndex = 10
-        box.Size = Vector3.new(4, 5, 1.5)
-        box.Transparency = 0.5
-        box.Color3 = Color3.new(1, 0, 0) -- красный
-        box.Parent = hrp
-
-        adornments[player] = box
-    end
-
-    local function removeESP(player)
-        local adorn = adornments[player]
-        if adorn then
-            adorn:Destroy()
-            adornments[player] = nil
-        end
-    end
-
-    local function onCharacterAdded(player, character)
-        repeat wait() until character:FindFirstChild("HumanoidRootPart")
-        wait(0.1)
-        createESP(player)
-    end
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= localPlayer then
-            player.CharacterAdded:Connect(function(char)
-                onCharacterAdded(player, char)
-            end)
-            if player.Character then
-                onCharacterAdded(player, player.Character)
+local function simpleTeamESP()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            -- Удаляем старый ESP
+            local oldHighlight = player.Character:FindFirstChild("SimpleESP")
+            if oldHighlight then
+                oldHighlight:Destroy()
+            end
+            
+            -- Определяем цвет
+            local color = Color3.fromRGB(255, 255, 0) -- Желтый по умолчанию
+            
+            if LocalPlayer.Team and player.Team then
+                if player.Team == LocalPlayer.Team then
+                    color = Color3.fromRGB(0, 255, 0) -- Зеленый
+                else
+                    color = Color3.fromRGB(255, 0, 0) -- Красный
+                end
+            end
+            
+            -- Создаем подсветку
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "SimpleESP"
+            highlight.FillColor = color
+            highlight.FillTransparency = 0.8
+            highlight.OutlineColor = color
+            highlight.OutlineTransparency = 0.3
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            highlight.Adornee = player.Character
+            highlight.Parent = player.Character
+            
+            -- Делаем видимым сквозь стены
+            for _, part in pairs(player.Character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.LocalTransparencyModifier = 0.5
+                end
             end
         end
     end
+end
 
-    Players.PlayerAdded:Connect(function(player)
-        player.CharacterAdded:Connect(function(char)
-            onCharacterAdded(player, char)
-        end)
-    end)
-
-    Players.PlayerRemoving:Connect(function(player)
-        removeESP(player)
-    end)
+-- Обновление каждые 2 секунды
+while true do
+    simpleTeamESP()
+    wait(2)
 end
