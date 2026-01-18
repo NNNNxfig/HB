@@ -9,7 +9,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 
 local flying = false
 local direction = Vector3.zero
-local flySpeed = 50
+local flySpeed = 200
 local teleportStep = 10
 
 local function disableAnimations()
